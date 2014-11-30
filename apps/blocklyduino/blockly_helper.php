@@ -31,6 +31,10 @@ function restore_blocks() {
   }
 }
 
+function write() {
+
+alert("LOL");
+}
 /**
  * Save blocks to local file.
  * better include Blob and FileSaver for browser compatibility
