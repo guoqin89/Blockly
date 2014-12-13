@@ -5,7 +5,7 @@
   <!--script type="text/javascript" src="../blockly_compressed.js"></script-->
   <script type="text/javascript" src="Blob.js"></script>
   <script type="text/javascript" src="FileSaver.min.js"></script>
-  <script type="text/javascript" src="blockly_helper.php"></script>
+  <script type="text/javascript" src="blockly_helper.js"></script>
  
   <script>
   // Whitelist of blocks to keep.
@@ -35,7 +35,7 @@
  * List of tab names.
  * @private
  */
-var TABS_ = ['blocks', 'arduino', 'xml'];
+var TABS_ = ['blocks', 'xml'];
 
 var selected = 'blocks';
 
@@ -45,25 +45,6 @@ var selected = 'blocks';
  */
 function tabClick(id) {
   // If the XML tab was open, save and render the content.
-  if (document.getElementById('tab_xml').className == 'tabon') {
-    var xmlTextarea = document.getElementById('textarea_xml');
-    var xmlText = xmlTextarea.value;
-    var xmlDom = null;
-    try {
-      xmlDom = Blockly.Xml.textToDom(xmlText);
-    } catch (e) {
-      var q =
-          window.confirm('Error parsing XML:\n' + e + '\n\nAbandon changes?');
-      if (!q) {
-        // Leave the user on the XML tab.
-        return;
-      }
-    }
-    if (xmlDom) {
-      Blockly.mainWorkspace.clear();
-      Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, xmlDom);
-    }
-  }
 
   // Deselect all tabs and hide all panes.
   for (var x in TABS_) {
@@ -110,6 +91,13 @@ function renderContent() {
   }
 }
 
+function arduinoCode() {
+    var arduinoTextarea = document.getElementById('textarea_arduino');
+    arduinoTextarea.value = Blockly.Generator.workspaceToCode('Arduino');
+    arduinoTextarea.focus();
+
+}
+
 /**
  * Initialize Blockly.  Called on page load.
  * @param {!Blockly} blockly Instance of Blockly from iframe.
@@ -145,7 +133,7 @@ function init(blockly) {
   </script>
   <style>
     body {
-      background-color: white;
+      background-color: Lavender;
       font-family: sans-serif;
       margin: 0;
       padding:0;
@@ -158,7 +146,13 @@ function init(blockly) {
     h1 {
       font-weight: normal;
       font-size: 140%;
+      font-family: Verdana, Geneva, sans-serif;
     }
+    h2 {
+      font-weight: normal;
+      font-size: 80%;
+    }
+
     td {
       vertical-align: top;
     }
@@ -169,15 +163,16 @@ function init(blockly) {
     }
     td.tabon {
       border-bottom-color: #ddd !important;
-      background-color: #ddd;
+      background-color: Lavender;
       padding: 5px 19px;
     }
     td.taboff {
       cursor: pointer;
+      background-color: Lavender;
       padding: 5px 19px;
     }
     td.taboff:hover {
-      background-color: #eee;
+      background-color: Lavender;
     }
     td.tabmin {
       border-top-style: none !important;
@@ -204,35 +199,36 @@ function init(blockly) {
     pre,
     #content_xml,
     #content_arduino {
-      width: 100%;
       height: 100%;
+      width: 49%;
       padding: 0;
       margin: 0;
       border: 1px solid #ccc;
       border-top-style: none;
       overflow: hidden;
-      display: none;
+      float: right;
     }
     #textarea_xml,
     #textarea_arduino {
       width: 100%;
       height: 100%;
-      border: none;
+      border: bold;
       resize: none;
     }
     iframe {
-      width: 100%;
+      width: 50%;
       height: 100%;
       border: 1px solid #ccc;
-      border-top-style: none;
+      border-top-style: 5px solid DarkGrey;
+      float: left;
     }
     button {
       padding: 1px 1em;
       font-size: 90%;
       border-radius: 4px;
-      border: 1px solid #ddd;
-      background-color: #eee;
-      color: black;
+      border: 1px solid darkGrey;
+      background-color: Lavender;
+      color: slategrey;
     }
     button.launch {
       border: 1px solid #d43;
@@ -251,58 +247,58 @@ function init(blockly) {
   <table height="100%" width="100%">
     <tr>
       <td>
-        <h1><a href="https://github.com/gasolin/BlocklyDuino/wiki">BlocklyDuino</a> &gt; web-based visual programming editor for arduino</h1>
+	<a href="http://soapboxrobotics.com"><img src="http://i.imgur.com/3mu5v71.png" style="width:125px;height:75px" border="1" alt="Soapbox Robotics"></a>
       </td>
     </tr>
-    <tr>
       <td>
         <table>
           <tr id="tabRow" height="1em">
-            <td id="tab_blocks" class="tabon" onclick="tabClick(this.id)">Blocks</td>
-            <td class="tabmin">&nbsp;</td>
+            <td id="tab_blocks" class="taboff" onclick="tabClick(this.id)">Blockly</td>
+
             <!--td id="tab_javascript" class="taboff" onclick="tabClick(this.id)">JavaScript</td>
             <td class="tabmin">&nbsp;</td-->
             <!--td id="tab_dart" class="taboff" onclick="tabClick(this.id)">Dart</td>
             <td class="tabmin">&nbsp;</td>
             <td id="tab_python" class="taboff" onclick="tabClick(this.id)">Python</td>
             <td class="tabmin">&nbsp;</td-->
-            <td id="tab_arduino" class="taboff" onclick="tabClick(this.id)">Arduino</td>
-            <td class="tabmin">&nbsp;</td>
-            <td id="tab_xml" class="taboff" onclick="tabClick(this.id)">XML</td>
-            <td class="tabmax">
-	       <select id="cb_cf_boards"></select>
-    
-    <button id="cb_cf_verify_btn" class="btn btn-success">Compile the Code!</button>
-    <select id="cb_cf_ports"></select>
-    <button id="cb_cf_flash_btn" class="btn btn-success">Compile and Flash!</button>
-    <p id="cb_cf_operation_output"></p>
-
-    <label> Event messages: </label>
-    <div id="event_msg"></div>
-
-	      <button onclick="discard()">Discard</button>
-              <button onclick="save()">Save XML</button>
-              <button id="fakeload">Load XML</button>
-              <input type="file" id="load" style="display: none;"/>
+            <!--<td id="tab_arduino" class="taboff" onclick="tabClick(this.id)">Arduino</td>
+            <td class="tabmin">&nbsp;</td>-->
+            <td id="tab_xml" class="tabon" onclick="tabClick(this.id)">XML</td>
+            <td class="tabmin"><span style="padding-left:470px;"></span>
+	    <button id="arduinoCode" onclick="arduinoCode()"> Arduino >></button>
+	    <span style="padding-left:200px;"></span>
+	    <button onclick="discard()">Discard</button>
+            <button onclick="save()">Save</button>
+            <button id="fakeload">Load</button>
+            <input type="file" id="load" style="display: none;"/>
               <!--button class="launch" onclick="runJS()">Run Program</button-->
-            </td>
-          </tr>
+	    </td>
         </table>
       </td>
     </tr>
     <tr>
-      <td height="99%">
-        <iframe id="content_blocks" src="frame.html"></iframe>
+      <td height="100%">
+        <iframe id="content_blocks" src="frame.html" align="left"></iframe>
 		<!--div id="content_blocks" style="height:auto !important;height:400px; min-height:400px;"></div-->
         <!--pre id="content_javascript"></pre>
         <pre id="content_dart"></pre-->
         <div id="content_arduino">
-          <textarea id="textarea_arduino" readonly></textarea>
+          <textarea id="textarea_arduino"></textarea>
         </div>
-        <!--pre id="content_python"></pre-->
         <div id="content_xml">
           <textarea id="textarea_xml" readonly></textarea>
         </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+	<button id="cb_cf_verify_btn" class="btn btn-success">Compile the Code!</button>
+    	<select id="cb_cf_ports"></select>
+    	<button id="cb_cf_flash_btn" class="btn btn-success">Compile and Flash!</button>
+	<select id="cb_cf_boards"></select>
+    	<p id="cb_cf_operation_output"></p>
+    	<!--<label> Event messages: </label>
+    	<div id="event_msg"></div>-->
       </td>
     </tr>
   </table>
@@ -328,12 +324,6 @@ function init(blockly) {
                 $("#event_msg").append("verification_failed event fired! \nCompilation error: <pre>"+error_output+"</pre><br/><br/>")
             });
         });
-
-
     </script>
-
-  
-
-
 </body>
 </html>
