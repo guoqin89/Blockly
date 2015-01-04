@@ -32,7 +32,7 @@ Blockly.Language.base_delay = {
   category: 'Control',
   helpUrl: 'http://arduino.cc/en/Reference/delay',
   init: function() {
-    this.setColour(120);
+    this.setColour(130);
     this.appendValueInput("DELAY_TIME", Number)
         .appendTitle("Delay")
         .setCheck(Number);
